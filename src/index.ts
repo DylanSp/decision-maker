@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import {createConnection} from "typeorm";
+import * as compression from "compression";
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as morgan from "morgan";
@@ -14,10 +15,11 @@ createConnection().then(async connection => {
 
     // create express app
     const app = express();
+    
+    // setup express app
     app.use(bodyParser.json());
-
-    // setup express app here
     app.use(morgan("tiny"));
+    app.use(compression());
 
     // set up routes
     const router = express.Router();
