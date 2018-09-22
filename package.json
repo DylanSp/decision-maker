@@ -1,7 +1,10 @@
 {
    "name": "decision-maker",
    "version": "0.1.0",
-   "description": "Awesome project developed with TypeORM.",
+   "description": "Instant-runoff voting app for making quick, fair decisions.",
+   "repository": "github:DylanSp/decision-maker",
+   "license": "MIT",
+   "bugs": "https://github.com/DylanSp/decision-maker/issues",
    "devDependencies": {
       "@types/body-parser": "^1.17.0",
       "@types/express": "^4.16.0",
