@@ -17,9 +17,4 @@ export class UserController {
     async save(request: Request, response: Response, next: NextFunction) {
         return this.userRepository.save(request.body);
     }
-
-    async remove(request: Request, response: Response, next: NextFunction) {
-        await this.userRepository.removeById(request.params.id);
-    }
-
 }

@@ -2,9 +2,13 @@ import "reflect-metadata";
 import {createConnection} from "typeorm";
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Request, Response} from "express";
-import {Routes} from "./routes";
+import * as morgan from "morgan";
 import {User} from "./entity/User";
+import { summarizeAllVotes, createVote, getVoteDetails, processBallot } from "./controller/VoteController";
+import { createVoter } from "./controller/VoterController";
+
+const version = "v0.1";
+const port = process.env["PORT"] || 3001;
 
 createConnection().then(async connection => {
 
@@ -12,24 +16,25 @@ createConnection().then(async connection => {
     const app = express();
     app.use(bodyParser.json());
 
-    // register express routes from defined application routes
-    Routes.forEach(route => {
-        (app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
-            const result = (new (route.controller as any))[route.action](req, res, next);
-            if (result instanceof Promise) {
-                result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
-
-            } else if (result !== null && result !== undefined) {
-                res.json(result);
-            }
-        });
-    });
-
     // setup express app here
-    // ...
+    app.use(morgan("tiny"));
+
+    // set up routes
+    const router = express.Router();
+
+    // Vote controller
+    router.get("/votes", summarizeAllVotes);
+    router.post("/votes", createVote);
+    router.get("/votes/:voteid", getVoteDetails);
+    router.post("/votes/:voteid", processBallot);
+
+    // Voter controller
+    router.post("/voter", createVoter);
+
+    app.use("/api/" + version, router);
 
     // start express server
-    app.listen(3000);
+    app.listen(port);
 
     // insert new users for test
     await connection.manager.save(connection.manager.create(User, {
@@ -43,6 +48,6 @@ createConnection().then(async connection => {
         age: 24
     }));
 
-    console.log("Express server has started on port 3000. Open http://localhost:3000/users to see results");
+    console.log(`Express server has started on port ${port}. Open http://localhost:${port}/users to see results`);
 
 }).catch(error => console.log(error));
