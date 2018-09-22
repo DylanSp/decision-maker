@@ -4,3 +4,7 @@ node_modules/
 build/
 tmp/
 temp/
+
+# personal utility scripts
+start_dev_mysql.sh
+connect_to_mysql.sh
