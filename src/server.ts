@@ -2,32 +2,37 @@ import * as bodyParser from "body-parser";
 import * as compression from "compression";
 import * as express from "express";
 import * as morgan from "morgan";
-import { createVote, getVoteDetails, processBallot, summarizeAllVotes } from "./controller/VoteController";
+import { VoteController } from "./controller/VoteController";
 import { createVoter } from "./controller/VoterController";
+import { VoteRepository } from "./repository/VoteRepository";
 
 const version = "v0.1";
 
-// create express app
-const app = express();
+export class DecisionMakerServer {
+    public readonly app: express.Express;
 
-// setup express app
-app.use(bodyParser.json());
-app.use(morgan("tiny"));
-app.use(compression());
-app.set("port", process.env.PORT || 3001);
+    public constructor(voteRepo: VoteRepository) {
+        this.app = express();
 
-// set up routes
-const router = express.Router();
+        // setup express app
+        this.app.use(bodyParser.json());
+        this.app.use(morgan("tiny"));
+        this.app.use(compression());
+        this.app.set("port", process.env.PORT || 3001);
 
-// Vote controller
-router.get("/votes", summarizeAllVotes);
-router.post("/votes", createVote);
-router.get("/votes/:voteid", getVoteDetails);
-router.post("/votes/:voteid", processBallot);
+        // set up routes
+        const router = express.Router();
 
-// Voter controller
-router.post("/voter", createVoter);
+        // Vote controller
+        const voteController = new VoteController(voteRepo);
+        router.get("/votes", voteController.summarizeAllVotes);
+        router.post("/votes", voteController.createVote);
+        router.get("/votes/:voteid", voteController.getVoteDetails);
+        router.post("/votes/:voteid", voteController.processBallot);
 
-app.use("/api/" + version, router);
+        // Voter controller
+        router.post("/voter", createVoter);
 
-export { app };
+        this.app.use("/api/" + version, router);
+    }
+}
