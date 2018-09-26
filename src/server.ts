@@ -17,7 +17,6 @@ export class DecisionMakerServer {
 
         // setup express app
         this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({"extended": true}));
         this.app.use(morgan("tiny"));
         this.app.use(compression());
         this.app.set("port", process.env.PORT || 3001);

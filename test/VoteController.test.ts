@@ -152,4 +152,8 @@ describe("Vote controller", () => {
             done();
         });
     });
+
+    it("creates associated choices when POSTing to /vote", () => {
+        // can't check id, so check that choices are linked to vote somehow?
+    });
 });
