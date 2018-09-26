@@ -45,7 +45,7 @@ export class VoteController {
         newVote.isOpen = true;
         newVote.choices = req.body.choices.map(choiceName => new Choice(choiceName));
 
-        // take out id property;
+        // take out id, choices properties;
         // see https://codeburst.io/use-es2015-object-rest-operator-to-omit-properties-38a3ecffe90
         const {id, choices, ...voteWithoutId } = await this.voteRepo.save(newVote);
        

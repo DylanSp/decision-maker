@@ -116,10 +116,31 @@ describe("Vote controller", () => {
     });
     
     describe("POST /votes", () => {
-        it("creates a new Vote", async (done) => {
+        it("creates a new vote in the database", async (done) => {
             const numBeforePost = (await voteRepo.findAndCount())[1];
             expect(numBeforePost).toBe(0);
-    
+
+            const payload = {
+                name: "test vote",
+                numVoters: 2,
+                choices: [
+                    "Bush",
+                    "Gore",
+                    "Nader"
+                ],
+                password: "testPass"
+            };
+
+            request.post(routePrefix + "/votes")
+            .send(payload)
+            .then(async () => {
+                const numAfterPost = (await voteRepo.findAndCount())[1];
+                expect(numAfterPost).toBe(1);
+                done();
+            });
+        });
+
+        it("returns a description of the newly created vote", async (done) => {
             const payload = {
                 name: "test vote",
                 numVoters: 2,
@@ -138,7 +159,6 @@ describe("Vote controller", () => {
             .expect(201)
     
             // validate response structure
-            // TODO - can I do this with io-ts?
             .expect((res) => {
                 const response = VoteCreationResponse.decode(res.body);
     
@@ -173,14 +193,10 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
                     throw new Error(PathReporter.report(response).toString());
                 }
             })
-            .then(async () => {
-                const numAfterPost = (await voteRepo.findAndCount())[1];
-                expect(numAfterPost).toBe(1);
-                done();
-            });
+            .end(done);
         });
 
-        it("creates associated choices when POSTing to /vote", () => {
+        it("creates associated choices", () => {
             // can't check id, so check that choices are linked to vote somehow?
         });
     });
