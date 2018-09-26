@@ -196,8 +196,29 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
             .end(done);
         });
 
-        it("creates associated choices", () => {
-            // can't check id, so check that choices are linked to vote somehow?
+        it("creates associated choices", async (done) => {
+            const numBeforePost = (await choiceRepo.findAndCount())[1];
+            expect(numBeforePost).toBe(0);
+
+            const payload = {
+                name: "test vote",
+                numVoters: 2,
+                choices: [
+                    "Bush",
+                    "Gore",
+                    "Nader"
+                ],
+                password: "testPass"
+            };
+
+            request.post(routePrefix + "/votes")
+            .send(payload)
+            .then(async () => {
+                const [ choices, numAfterPost ] = (await choiceRepo.findAndCount());
+                expect(choices.map(choice => choice.name).sort()).toEqual(payload.choices.sort());
+                expect(numAfterPost).toBe(3);
+                done();
+            });
         });
     });
 });
