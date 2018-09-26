@@ -8,3 +8,31 @@ export const VoteSummaryResponse = t.array(t.type({
     name: t.string,
     hashid: t.string
 }));
+
+/*
+const payload = {
+            name: "test vote",
+            numVoters: 2,
+            choices: [
+                "Bush",
+                "Gore",
+                "Nader"
+            ],
+            password: "testPass"
+        };
+*/
+
+export const VoteCreationRequest = t.type({
+    name: t.string,
+    numVoters: t.number,
+    choices: t.array(t.string),
+    password: t.string
+});
+
+export const VoteCreationResponse = t.intersection([
+    t.type({
+        hashid: t.string,
+        isOpen: t.boolean
+    }),
+    VoteCreationRequest
+]);

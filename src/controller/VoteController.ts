@@ -47,11 +47,12 @@ export class VoteController {
 
         // take out id property;
         // see https://codeburst.io/use-es2015-object-rest-operator-to-omit-properties-38a3ecffe90
-        const {id, ...voteWithoutId } = await this.voteRepo.save(newVote);
+        const {id, choices, ...voteWithoutId } = await this.voteRepo.save(newVote);
        
         const returnPayload = {
-            ...voteWithoutId,
-            hashid: this.hashids.encode(id)
+            hashid: this.hashids.encode(id),
+            choices: choices.map(choice => choice.name),
+            ...voteWithoutId
         };
 
         res.status(201)

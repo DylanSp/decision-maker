@@ -7,7 +7,7 @@ import { SuperTest } from "supertest";
 import * as supertest from "supertest";
 import { createConnection } from "typeorm";
 
-import { VoteSummaryResponse } from "../io-types/VotePayloads";
+import { VoteCreationResponse, VoteSummaryResponse } from "../io-types/VotePayloads";
 
 import { Choice } from "../src/entity/Choice";
 import { Vote } from "../src/entity/Vote";
@@ -22,6 +22,8 @@ const testSalt = "salty!";
 let voteRepo: VoteRepository;
 let choiceRepo: ChoiceRepository;
 let app: express.Express;
+
+// TODO - utility function for validating response, given an io-ts type?
 
 beforeAll(async (done) => {
     const conn = await createConnection("test");
@@ -136,29 +138,37 @@ describe("Vote controller", () => {
         // validate response structure
         // TODO - can I do this with io-ts?
         .expect((res) => {
-            if(!res.body.hashid || !(/[a-zA-Z]+/.test(res.body.hashid))) {
-                throw new Error(`hashid not present or contains invalid chars; received ${res.body.hashid}`);
-            }
+            const response = VoteCreationResponse.decode(res.body);
 
-            if(!res.get("Location").includes(res.body.hashid)) {
-                throw new Error(`hashid doesn't match Location header; hashid was ${res.body.hashid}, Location header was ${res.get("Location")}`);
-            }
+            if(response instanceof Right) {
+                const { hashid, isOpen, choices:responseChoices, ...createdVote } = response.value;
 
-            if (!res.body.name || res.body.name !== payload.name) {
-                throw new Error(`Name not present or incorrect; received ${res.body.name}`);
-            }
+                if(!isOpen) {
+                    throw new Error("New vote is not open");
+                }
 
-            if(!res.body.numVoters || res.body.numVoters !== payload.numVoters) {
-                throw new Error(`numVoters not present or incorrect; received ${res.body.numVoters}`);
-            }
+                if(!(/[a-zA-Z]+/.test(hashid))) {
+                    throw new Error(`hashid contains invalid chars; received ${hashid}`);
+                }
 
-            // use sort() so we don't worry about what order choices are returned in
-            if(!res.body.choices || isEqual(res.body.choices.sort(), payload.choices.sort())) {
-                throw new Error(`Choices not present or incorrect; received ${res.body.choices}`);
-            }
+                if(!res.get("Location").includes(hashid)) {
+                    throw new Error(`hashid doesn't match Location header; hashid was ${hashid}, Location header was ${res.get("Location")}`);
+                }
 
-            if(!res.body.password) {
-                throw new Error("Password not present");
+                const { choices:payloadChoices, ...payloadWithoutChoices } = payload;
+                if(!isEqual(createdVote, payloadWithoutChoices)) {
+                    throw new Error(`Mismatch between name, numVoters, or password between request and response:
+created: ${JSON.stringify(createdVote)}
+payload: ${JSON.stringify(payloadWithoutChoices)}`
+                    );
+                }
+
+                // use sort() so we don't worry about what order choices are returned in
+                if(!isEqual(responseChoices.sort(), payloadChoices.sort())) {
+                    throw new Error("Mismatch in choices between request and response");
+                }
+            } else { // decoding failed
+                throw new Error(PathReporter.report(response).toString());
             }
         })
         .then(async () => {
