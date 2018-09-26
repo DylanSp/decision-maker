@@ -11,7 +11,6 @@ const version = "v0.1";
 
 export class DecisionMakerServer {
     public readonly app: express.Express;
-    private readonly hashidSalt: string;
 
     public constructor(voteRepo: VoteRepository, choiceRepo: ChoiceRepository, hashidSalt: string) {
         this.app = express();
