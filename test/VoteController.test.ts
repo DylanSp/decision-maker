@@ -1,9 +1,13 @@
 import * as express from "express";
+import { Right } from "fp-ts/lib/Either";
+import { PathReporter } from "io-ts/lib/PathReporter";
 import { isEqual } from "lodash";
 import "reflect-metadata";
 import { SuperTest } from "supertest";
 import * as supertest from "supertest";
 import { createConnection } from "typeorm";
+
+import { VoteSummaryResponse } from "../io-types/VotePayloads";
 
 import { Choice } from "../src/entity/Choice";
 import { Vote } from "../src/entity/Vote";
@@ -78,21 +82,32 @@ describe("Vote controller", () => {
         .expect("Content-Type", /json/)
         .expect(200)
         .expect((res) => {
-            // expect to find vote0
-            if (!(res.body.find(obj => obj.name === "Open vote 0"))) {
-                throw new Error("missing vote 0");
-            }
+            const response = VoteSummaryResponse.decode(res.body);
 
-            // expect to find vote1
-            if (!(res.body.find(obj => obj.name === "Open vote 1"))) {
-                throw new Error("missing vote 1");
-            }
+            if(response instanceof Right) {
+                const votes = response.value;
+                // expect to find vote 0
+                if(!(votes.find(vote => vote.name === "Open vote 0"))) {
+                    throw new Error("missing vote 0");
+                }
 
-            // expect NOT to find vote1
-            if ((res.body.find(obj => obj.name === "Closed vote 2"))) {
-                throw new Error("Vote 2 present");
+                // expect to find vote 1
+                if(!(votes.find(vote => vote.name === "Open vote 1"))) {
+                    throw new Error("missing vote 1");
+                }
+
+                // expect NOT to find vote2
+                if ((votes.find(obj => obj.name === "Closed vote 2"))) {
+                    throw new Error("Vote 2 present");
+                }
+
+                // check that hashids are all purely alphabetical
+                if (votes.some(vote => !(/[a-zA-Z]/.test(vote.hashid)))) {
+                    throw new Error("Vote with non-alphabetic hashid");
+                }
+            } else { // decoding failed
+                throw new Error(PathReporter.report(response).toString());
             }
-            
         })
         .end(done);
     });

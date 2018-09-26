@@ -23,12 +23,16 @@ export class VoteController {
     
     public summarizeAllVotes = async (req: Request, res: Response): Promise<void> => {
         const votes = await this.voteRepo.find({
-            select: ["name"],
+            select: ["name", "id"],
             where: {
                 isOpen: true
             }
         });
-        res.json(votes);
+
+        res.json(votes.map(vote => ({
+            name: vote.name,
+            hashid: this.hashids.encode(vote.id)
+        })));
     }
 
     public createVote = async (req: Request, res: Response): Promise<void> => {
