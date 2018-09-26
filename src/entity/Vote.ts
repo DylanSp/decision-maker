@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Choice } from "./Choice";
 
 @Entity()
 export class Vote {
@@ -10,5 +11,14 @@ export class Vote {
     public name: string;
 
     @Column()
+    public numVoters: number;
+
+    @Column()
+    public password: string;
+
+    @Column()
     public isOpen: boolean;
+
+    @OneToMany(type => Choice, choice => choice.vote, {cascade: true})
+    public choices: Choice[];
 }

@@ -1,11 +1,13 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
+import { ChoiceRepository } from "./repository/ChoiceRepository";
 import { VoteRepository } from "./repository/VoteRepository";
 import { DecisionMakerServer } from "./server";
 
 createConnection("prod").then(async (connection) => {
     const voteRepo = connection.getCustomRepository(VoteRepository);
-    const app = new DecisionMakerServer(voteRepo).app;
+    const choiceRepo = connection.getCustomRepository(ChoiceRepository);
+    const app = new DecisionMakerServer(voteRepo, choiceRepo, "salt").app;
 
     // start express server
     const port = app.get("port");
