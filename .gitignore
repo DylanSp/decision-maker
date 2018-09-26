@@ -5,6 +5,7 @@ build/
 dist/
 tmp/
 temp/
+coverage/
 
 # personal utility scripts
 start_dev_mysql.sh
