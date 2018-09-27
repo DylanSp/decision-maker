@@ -220,5 +220,42 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
                 done();
             });
         });
+
+        describe("validates incoming requests", () => {
+            it("requires that request.name exists", async (done) => {
+                const payload = {
+                    numVoters: 2,
+                    choices: [
+                        "Bush",
+                        "Gore",
+                        "Nader"
+                    ],
+                    password: "testPass"
+                };
+                request.post(routePrefix + "/votes")
+                .send(payload)
+                .expect(400)
+                .end(done);
+            });
+
+            it("requires that request.name is a string", async (done) => {
+                const payload = {
+                    name: true,
+                    numVoters: 2,
+                    choices: [
+                        "Bush",
+                        "Gore",
+                        "Nader"
+                    ],
+                    password: "testPass"
+                };
+                request.post(routePrefix + "/votes")
+                .send(payload)
+                .expect(400)
+                .end(done);
+            });
+
+            // TODO - test other fields?
+        });
     });
 });

@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
+import { Left } from "fp-ts/lib/Either";
 import Hashids from "hashids";
+import { PathReporter } from "io-ts/lib/PathReporter";
+
+import { VoteCreationRequest } from "../../io-types/VotePayloads";
+
 import { Choice } from "../entity/Choice";
 import { Vote } from "../entity/Vote";
 import { ChoiceRepository } from "../repository/ChoiceRepository";
 import { VoteRepository } from "../repository/VoteRepository";
+
+
 
 // hashids are all alphabetic, no digits, for testing/readability
 const hashidMinLength = 5;
@@ -36,12 +43,18 @@ export class VoteController {
     }
 
     public createVote = async (req: Request, res: Response): Promise<void> => {
-        // TODO - validate request
+        const request = VoteCreationRequest.decode(req.body);
+        if (request instanceof Left) {
+            res.status(400)
+            .send(PathReporter.report(request).toString());
+            return;
+        }
+        const requestPayload = request.value;
 
         const newVote = new Vote();
-        newVote.name = req.body.name;
-        newVote.numVoters = req.body.numVoters;
-        newVote.password = req.body.password;
+        newVote.name = requestPayload.name
+        newVote.numVoters = requestPayload.numVoters;
+        newVote.password = requestPayload.password;
         newVote.isOpen = true;
         newVote.choices = req.body.choices.map(choiceName => new Choice(choiceName));
 
