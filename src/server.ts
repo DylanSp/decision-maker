@@ -29,7 +29,7 @@ export class DecisionMakerServer {
         router.get("/votes", voteController.summarizeAllVotes);
         router.post("/votes", voteController.createVote);
         router.get("/votes/:voteid([a-zA-Z]+)", voteController.getVoteDetails);
-        router.post("/votes/:voteid", voteController.processBallot);
+        router.post("/votes/:voteid([a-zA-Z]+)/ballots", voteController.processBallot);
 
         // Voter controller
         router.post("/voter", createVoter);

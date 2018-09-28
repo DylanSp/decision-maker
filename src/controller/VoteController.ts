@@ -94,7 +94,10 @@ export class VoteController {
         res.json(returnPayload);
     }
     
+    // does not return contents of the ballot; 
+    // the ballot isn't visible or requestable after being submitted
     public processBallot = async (req: Request, res: Response): Promise<void> => {
-        res.send("hi!");
+        res.status(204)
+        .send();
     }
 }

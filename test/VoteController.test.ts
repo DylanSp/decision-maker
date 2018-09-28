@@ -374,4 +374,25 @@ returned: ${JSON.stringify(returnedVote)}`
 
         
     });
+
+    describe("POST /votes/:voteid/ballots", () => {
+        /*
+        it("creates rows for the ballot in the database", async (done) => {
+
+        });
+        */
+
+        it("returns a 204 No Content response", (done) => {
+            const payload = ["bush", "gore", "nader"];
+            request.post(routePrefix + "/votes/abcde/ballots")
+            .send(payload)
+            .expect(204, done);
+        });
+
+        /*
+        it("validates incoming requests", (done) => {
+
+        });
+        */
+    });
 });

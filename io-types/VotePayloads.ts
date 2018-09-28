@@ -43,3 +43,5 @@ export const VoteDetailsResponse = t.intersection([
     }),
     VoteCreationResponse
 ]);
+
+export const BallotCreationRequest = t.array(t.string);
