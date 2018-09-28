@@ -21,6 +21,7 @@ const routePrefix = "/api/" + version;
 const testSalt = "salty!";
 
 // these settings should mirror VoteController
+// TODO - factor out into shared module?
 const hashidMinLength = 5;
 const idAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const hashids = new Hashids(testSalt, hashidMinLength, idAlphabet);
@@ -147,7 +148,7 @@ describe("Vote controller", () => {
             });
         });
 
-        it("returns a description of the newly created vote", async (done) => {
+        it("returns a description of the newly created vote", (done) => {
             const payload = {
                 name: "test vote",
                 numVoters: 2,
@@ -229,7 +230,7 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
         });
 
         describe("validates incoming requests", () => {
-            it("requires that request.name exists", async (done) => {
+            it("requires that request.name exists", (done) => {
                 const payload = {
                     numVoters: 2,
                     choices: [
@@ -241,11 +242,10 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
                 };
                 request.post(routePrefix + "/votes")
                 .send(payload)
-                .expect(400)
-                .end(done);
+                .expect(400, done);
             });
 
-            it("requires that request.name is a string", async (done) => {
+            it("requires that request.name is a string", (done) => {
                 const payload = {
                     name: true,
                     numVoters: 2,
