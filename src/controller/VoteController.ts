@@ -74,7 +74,24 @@ export class VoteController {
     }
     
     public getVoteDetails = async (req: Request, res: Response): Promise<void> => {
-        res.send("hi!");
+        const hashid = req.params.voteid;
+        const vote = await this.voteRepo.findOne(this.hashids.decode(hashid)[0], {relations: ["choices"]});
+        
+        if(!vote) { // undefined vote => no vote exists with this id
+            res.status(404)
+            .send();
+            return;
+        }
+
+        const { id, choices, ...voteWithoutId } = vote;
+        const winningChoice: Choice | undefined = choices.find(choice => choice.isWinner);
+        const returnPayload = {
+            hashid: this.hashids.encode(id),
+            choices: choices.map(choice => choice.name),
+            winner: winningChoice ? winningChoice.name : undefined, 
+            ...voteWithoutId
+        };
+        res.json(returnPayload);
     }
     
     public processBallot = async (req: Request, res: Response): Promise<void> => {

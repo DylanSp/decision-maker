@@ -1,12 +1,13 @@
 import * as express from "express";
 import { Right } from "fp-ts/lib/Either";
+import Hashids from "hashids";
 import { PathReporter } from "io-ts/lib/PathReporter";
 import { isEqual } from "lodash";
 import { SuperTest } from "supertest";
 import * as supertest from "supertest";
 import { createConnection } from "typeorm";
 
-import { VoteCreationResponse, VoteSummaryResponse } from "../io-types/VotePayloads";
+import { VoteCreationResponse, VoteDetailsResponse, VoteSummaryResponse } from "../io-types/VotePayloads";
 
 import { Choice } from "../src/entity/Choice";
 import { Vote } from "../src/entity/Vote";
@@ -14,9 +15,15 @@ import { ChoiceRepository } from "../src/repository/ChoiceRepository";
 import { VoteRepository } from "../src/repository/VoteRepository";
 import { DecisionMakerServer } from "../src/server";
 
+
 const version = "v0.1";
 const routePrefix = "/api/" + version;
 const testSalt = "salty!";
+
+// these settings should mirror VoteController
+const hashidMinLength = 5;
+const idAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const hashids = new Hashids(testSalt, hashidMinLength, idAlphabet);
 
 let voteRepo: VoteRepository;
 let choiceRepo: ChoiceRepository;
@@ -256,6 +263,115 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
             });
 
             // TODO - test other fields?
+            // test that choices is nonempty
         });
+    });
+
+    describe("GET /votes/:voteid", () => {
+        it("returns details on a requested vote", async (done) => {
+            const choiceName = "choice";
+            const vote = new Vote();
+            vote.name = "Sample requested vote";
+            vote.isOpen = true;
+            vote.numVoters = 5;
+            vote.password = "pass";
+            vote.choices = [new Choice(choiceName)];
+            // id needs to be transformed to hashid, choices needs to have names extracted
+            const {id, choices, ...voteWithOtherProperties} = await voteRepo.save(vote);
+            const hashid = hashids.encode(id);
+
+            request.get(routePrefix + "/votes/" + hashid)
+            .expect("Content-Type", /json/)
+            .expect(200)
+            .expect((res) => {
+                const response = VoteDetailsResponse.decode(res.body);
+
+                if(response instanceof Right) {
+                    const returnedVote = response.value;
+                    const expectedResponse = {
+                        hashid,
+                        choices: choices.map(choice => choice.name),
+                        ...voteWithOtherProperties
+                    };
+                    // check vote details
+                    if(!isEqual(returnedVote, expectedResponse)) {
+                        throw new Error(`Returned details don't match inserted vote:
+inserted: ${JSON.stringify(vote)}
+expected: ${JSON.stringify(expectedResponse)}
+returned: ${JSON.stringify(returnedVote)}`
+                        );
+                    }
+                } else { // decoding failed
+                    throw new Error(PathReporter.report(response).toString());
+                }
+            })
+            .end(done);
+        });
+
+        it("includes the winner in details on a completed vote", async (done) => {
+            const choiceName = "choice";
+            const vote = new Vote();
+            vote.name = "Sample completed vote";
+            vote.isOpen = true;
+            vote.numVoters = 5;
+            vote.password = "pass";
+            vote.choices = [new Choice(choiceName)];
+            // id needs to be transformed to hashid, choices needs to have names extracted
+            const {id, choices, ...voteWithOtherProperties} = await voteRepo.save(vote);
+            const hashid = hashids.encode(id);
+
+            await choiceRepo
+            .createQueryBuilder()
+            .update()
+            .set({isWinner: true})
+            .where("voteId = :id", {id})
+            .execute();
+
+            request.get(routePrefix + "/votes/" + hashid)
+            .expect((res) => {
+                const response = VoteDetailsResponse.decode(res.body);
+
+                if(response instanceof Right) {
+                    const returnedVote = response.value;
+                    if(returnedVote.winner !== choiceName) {
+                        console.log(returnedVote.winner);
+                        throw new Error("Winning choice not returned");
+                    }
+
+                    /*
+                    const expectedResponse = {
+                        hashid,
+                        choices: choices.map(choice => choice.name),
+                        ...voteWithOtherProperties
+                    };
+                    // check vote details
+                    if(!isEqual(returnedVote, expectedResponse)) {
+                        throw new Error(`Returned details don't match inserted vote:
+inserted: ${JSON.stringify(vote)}
+expected: ${JSON.stringify(expectedResponse)}
+returned: ${JSON.stringify(returnedVote)}`
+                        );
+                    }
+                    */
+                } else { // decoding failed
+                    throw new Error(PathReporter.report(response).toString());
+                }
+            })
+            .end(done);
+        });
+        
+        it("returns a 404 when requesting a nonexistent vote", async (done) => {
+            request.get(routePrefix + "/votes/abcde")
+            .expect(404)
+            .end(done);
+        });
+        
+        it("returns a 404 when using a non-alphabetic voteid", async (done) => {
+            request.get(routePrefix + "/votes/12345")
+            .expect(404)
+            .end(done);
+        });
+
+        
     });
 });

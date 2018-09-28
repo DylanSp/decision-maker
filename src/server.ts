@@ -28,7 +28,7 @@ export class DecisionMakerServer {
         const voteController = new VoteController(voteRepo, choiceRepo, hashidSalt);
         router.get("/votes", voteController.summarizeAllVotes);
         router.post("/votes", voteController.createVote);
-        router.get("/votes/:voteid", voteController.getVoteDetails);
+        router.get("/votes/:voteid([a-zA-Z]+)", voteController.getVoteDetails);
         router.post("/votes/:voteid", voteController.processBallot);
 
         // Voter controller

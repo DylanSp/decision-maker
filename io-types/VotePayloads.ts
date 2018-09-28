@@ -36,3 +36,10 @@ export const VoteCreationResponse = t.intersection([
     }),
     VoteCreationRequest
 ]);
+
+export const VoteDetailsResponse = t.intersection([
+    t.partial({
+        winner: t.string
+    }),
+    VoteCreationResponse
+]);
