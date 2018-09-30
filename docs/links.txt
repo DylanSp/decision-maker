@@ -1,7 +1,0 @@
-https://redux.js.org/basics/usagewithreact
-https://stackoverflow.com/questions/35411423/how-to-dispatch-a-redux-action-with-a-timeout/35415559#35415559
-https://redux-actions.js.org (maybe)
-https://redux.js.org/basics/reducers#designing-the-state-shape
-https://github.com/mweststrate/immer
-https://www.netlify.com/blog/2018/09/12/the-rise-of-immer-in-react/
-https://github.com/piotrwitek/react-redux-typescript-guide

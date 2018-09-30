@@ -1,5 +1,10 @@
+import { AxiosStatic } from "axios";
+import { Left } from 'fp-ts/lib/Either';
 import * as React from 'react';
+import { VoteSummaryResponse } from "../../../io-types/VotePayloads";
 import { VoteRow } from './VoteRow';
+
+const pollInterval = 2 * 1000;
 
 export interface VoteSummary {
     name: string,
@@ -7,31 +12,57 @@ export interface VoteSummary {
 }
 
 export interface VoteListProps {
-    voteList: VoteSummary[],
-    fetchVoteSummaries: () => void,
-    startFetchingSummaries: () => void,
-    stopFetchingSummaries: () => void
+    fetcher: AxiosStatic
 }
 
-export class VoteList extends React.Component<VoteListProps, {}> {
+export interface VoteListState {
+    voteList: VoteSummary[],
+    isPolling: boolean
+}
+
+export class VoteList extends React.Component<VoteListProps, VoteListState> {
     public constructor (props: VoteListProps) {
         super(props);
+        this.state = {
+            voteList: [],
+            isPolling: false
+        }
     }
 
     public componentDidMount = () => {
-        this.props.startFetchingSummaries();
+        this.setState({
+            isPolling: true
+        });
 
         // will repeat, polling /votes on the backend until component unmounts
-        this.props.fetchVoteSummaries();
+        this.fetchVoteSummaries();
     }
 
     public componentWillUnmount = () => {
-        this.props.stopFetchingSummaries();
+        this.setState({
+            isPolling: false
+        });
     }
 
     public render = () => (
         <>
-            {this.props.voteList.map((summary, index) => <VoteRow key={index} {...summary} />)}
+            {this.state.voteList.map((summary, index) => <VoteRow key={index} {...summary} />)}
         </>
     );
+
+    private fetchVoteSummaries = async (): Promise<void> => {
+        // TODO - figure out how to set version as a const, refer to that from components
+        const response = VoteSummaryResponse.decode(await this.props.fetcher.get("/api/v0.1/votes"));
+        if(response instanceof Left) {
+            // TODO - handle error somehow
+        } else {
+            this.setState({
+                voteList: response.value
+            });
+        }
+        if(this.state.isPolling) {
+            // TODO - is this valid?
+            // setTimeout(this.fetchVoteSummaries(), pollInterval);
+        }
+    }
 }

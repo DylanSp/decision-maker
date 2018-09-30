@@ -3,13 +3,15 @@ import * as React from 'react';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { VoteCreationButton } from './VoteCreationButton';
-import { VoteSummaryPoller } from './VoteSummaryPoller';
+import { VoteList } from './VoteList';
 
 export const LobbyScreen: SFC<{}> = () => {
     return (
         <>
             <Header />
-            <VoteSummaryPoller />
+            {
+                // <VoteList /> TODO - pass axios here, or pass fetcher in from App?
+            }
             <VoteCreationButton />
             <Footer />
         </>
