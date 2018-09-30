@@ -3,13 +3,13 @@ import * as React from 'react';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { VoteCreationButton } from './VoteCreationButton';
-import { VoteList } from './VoteList';
+import { VoteSummaryPoller } from './VoteSummaryPoller';
 
 export const LobbyScreen: SFC<{}> = () => {
     return (
         <>
             <Header />
-            <VoteList />
+            <VoteSummaryPoller />
             <VoteCreationButton />
             <Footer />
         </>
