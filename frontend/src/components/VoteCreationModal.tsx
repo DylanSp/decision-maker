@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ChoiceCreationList } from './ChoiceCreationList';
 import { VoteCreationForm } from './VoteCreationForm';
 
-export const VoteCreationPopup: SFC<{}> = () => {
+export const VoteCreationModal: SFC<{}> = () => {
     return (
         <>
             <VoteCreationForm />
