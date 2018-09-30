@@ -1,0 +1,27 @@
+    LobbyScreen
+        Header
+        VoteList - current list of open votes (polls /votes)
+            VoteSummary
+                VoteJoinButton
+        VoteCreationButton
+        Footer
+    VoteJoinPopup
+        PasswordEntry
+        JoinButton
+        CancelButton
+    VoteCreationPopup
+        VoteCreationForm - controlled components, but ok to keep locally
+        ChoiceCreationList - list of choices
+            AddChoiceButton
+        SubmitButton
+        CancelButton
+    VotingScreen
+        ChoiceRanker - ranking of choices
+            ChoiceDisplay
+        SubmitButton
+    WaitingScreen - whether vote is complete
+        WaitingSpinner
+    VoteCompletionScreen - vote name, winning choice
+        VictoryText
+        HomeButton
+    
