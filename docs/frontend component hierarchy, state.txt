@@ -3,7 +3,7 @@
         VoteList - current list of open votes (polls /votes)
             VoteSummary
                 VoteJoinButton
-        VoteCreationButton
+        VoteCreationButton (maybe better name for this?)
         Footer
     VoteJoinPopup
         PasswordEntry
