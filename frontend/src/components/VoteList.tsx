@@ -61,8 +61,7 @@ export class VoteList extends React.Component<VoteListProps, VoteListState> {
             });
         }
         if(this.state.isPolling) {
-            // TODO - is this valid?
-            // setTimeout(this.fetchVoteSummaries(), pollInterval);
+            setTimeout(async () => this.fetchVoteSummaries(), pollInterval);
         }
     }
 }

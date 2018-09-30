@@ -1,3 +1,4 @@
+import Axios from 'axios';
 import { SFC } from 'react';
 import * as React from 'react';
 import { Footer } from './Footer';
@@ -9,9 +10,7 @@ export const LobbyScreen: SFC<{}> = () => {
     return (
         <>
             <Header />
-            {
-                // <VoteList /> TODO - pass axios here, or pass fetcher in from App?
-            }
+            <VoteList fetcher={Axios}/>
             <VoteCreationButton />
             <Footer />
         </>
