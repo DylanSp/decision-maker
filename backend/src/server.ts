@@ -35,5 +35,8 @@ export class DecisionMakerServer {
         router.post("/voter", createVoter);
 
         this.app.use("/api/" + version, router);
+
+        // static files - serve frontend
+        this.app.use(express.static(__dirname + "/../frontend-files"));
     }
 }
