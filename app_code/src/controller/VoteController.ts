@@ -75,6 +75,8 @@ export class VoteController {
     
     public getVoteDetails = async (req: Request, res: Response): Promise<void> => {
         const hashid = req.params.voteid;
+
+        // TODO - from manual testing, appears to find votes even when a nonexistent ID is given; investigate
         const vote = await this.voteRepo.findOne(this.hashids.decode(hashid)[0], {relations: ["choices"]});
         
         if(!vote) { // undefined vote => no vote exists with this id
