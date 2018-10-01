@@ -1,5 +1,5 @@
 import { AxiosStatic } from "axios";
-import { VoteSummaryResponse } from "io-types";
+import { VoteSummaryResponse } from "common";
 import * as React from 'react';
 import { VoteRow } from './VoteRow';
 

@@ -3,7 +3,7 @@ import { Left } from "fp-ts/lib/Either";
 import Hashids from "hashids";
 import { PathReporter } from "io-ts/lib/PathReporter";
 
-import { VoteCreationRequest } from "io-types";
+import { VoteCreationRequest } from "common";
 
 import { Choice } from "../entity/Choice";
 import { Vote } from "../entity/Vote";

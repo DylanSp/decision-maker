@@ -9,7 +9,7 @@ import { SuperTest } from "supertest";
 import * as supertest from "supertest";
 import { createConnection } from "typeorm";
 
-import { VoteCreationResponse, VoteDetailsResponse, VoteSummaryResponse } from "io-types";
+import { VoteCreationResponse, VoteDetailsResponse, VoteSummaryResponse } from "common";
 
 import { Choice } from "../src/entity/Choice";
 import { Vote } from "../src/entity/Vote";
