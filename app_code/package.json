@@ -36,7 +36,8 @@
       "mysql": "^2.14.1",
       "reflect-metadata": "^0.1.10",
       "ts-node": "^7.0.1",
-      "typeorm": "0.2.7"
+      "typeorm": "0.2.7",
+      "io-types": "file:../io-types"
    },
    "scripts": {
       "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
@@ -44,6 +45,10 @@
       "test": "jest --watch"
    },
    "jest": {
-      "preset": "ts-jest"
+      "preset": "ts-jest",
+      "testPathIgnorePatterns": [
+         "/node_modules/",
+         "/frontend/"
+      ]
    }
 }

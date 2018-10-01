@@ -1,7 +1,6 @@
 import { AxiosStatic } from "axios";
-import { Left } from 'fp-ts/lib/Either';
+import { VoteSummaryResponse } from "io-types";
 import * as React from 'react';
-import { VoteSummaryResponse } from "../../../io-types/VotePayloads";
 import { VoteRow } from './VoteRow';
 
 const pollInterval = 2 * 1000;
@@ -53,7 +52,7 @@ export class VoteList extends React.Component<VoteListProps, VoteListState> {
     private fetchVoteSummaries = async (): Promise<void> => {
         // TODO - figure out how to set version as a const, refer to that from components
         const response = VoteSummaryResponse.decode(await this.props.fetcher.get("/api/v0.1/votes"));
-        if(response instanceof Left) {
+        if(response.isLeft()) {
             // TODO - handle error somehow
         } else {
             this.setState({

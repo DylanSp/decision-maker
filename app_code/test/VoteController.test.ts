@@ -1,13 +1,15 @@
 import * as express from "express";
-import { Right } from "fp-ts/lib/Either";
+import { Left, Right } from "fp-ts/lib/Either";
 import Hashids from "hashids";
 import { PathReporter } from "io-ts/lib/PathReporter";
+import "jest"; // needed to get globals like describe(), it()
+               // which aren't imported automatically due to project structure
 import { isEqual } from "lodash";
 import { SuperTest } from "supertest";
 import * as supertest from "supertest";
 import { createConnection } from "typeorm";
 
-import { VoteCreationResponse, VoteDetailsResponse, VoteSummaryResponse } from "../io-types/VotePayloads";
+import { VoteCreationResponse, VoteDetailsResponse, VoteSummaryResponse } from "io-types";
 
 import { Choice } from "../src/entity/Choice";
 import { Vote } from "../src/entity/Vote";
@@ -93,8 +95,13 @@ describe("Vote controller", () => {
             .expect(200)
             .expect((res) => {
                 const response = VoteSummaryResponse.decode(res.body);
+                console.log(response.constructor.name);
+                // console.log(response instanceof Right);
+                // console.log(response instanceof Left);
+                // console.log(`isLeft: ${response.isLeft()}`);
+                // console.log(`isRight: ${response.isRight()}`);
     
-                if(response instanceof Right) {
+                if(response.isRight()) {
                     const votes = response.value;
                     // expect to find vote 0
                     if(!(votes.find(vote => vote.name === "Open vote 0"))) {
@@ -116,6 +123,7 @@ describe("Vote controller", () => {
                         throw new Error("Vote with non-alphabetic hashid");
                     }
                 } else { // decoding failed
+                    console.log(response.inspect());
                     throw new Error(PathReporter.report(response).toString());
                 }
             })
@@ -170,7 +178,7 @@ describe("Vote controller", () => {
             .expect((res) => {
                 const response = VoteCreationResponse.decode(res.body);
     
-                if(response instanceof Right) {
+                if(response.isRight()) {
                     const { hashid, isOpen, choices:responseChoices, ...createdVote } = response.value;
     
                     if(!isOpen) {
@@ -286,7 +294,7 @@ payload: ${JSON.stringify(payloadWithoutChoices)}`
             .expect((res) => {
                 const response = VoteDetailsResponse.decode(res.body);
 
-                if(response instanceof Right) {
+                if(response.isRight()) {
                     const returnedVote = response.value;
                     const expectedResponse = {
                         hashid,
@@ -331,7 +339,7 @@ returned: ${JSON.stringify(returnedVote)}`
             .expect((res) => {
                 const response = VoteDetailsResponse.decode(res.body);
 
-                if(response instanceof Right) {
+                if(response.isRight()) {
                     const returnedVote = response.value;
                     if(returnedVote.winner !== choiceName) {
                         console.log(returnedVote.winner);

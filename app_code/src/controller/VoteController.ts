@@ -3,7 +3,7 @@ import { Left } from "fp-ts/lib/Either";
 import Hashids from "hashids";
 import { PathReporter } from "io-ts/lib/PathReporter";
 
-import { VoteCreationRequest } from "../../io-types/VotePayloads";
+import { VoteCreationRequest } from "io-types";
 
 import { Choice } from "../entity/Choice";
 import { Vote } from "../entity/Vote";
@@ -44,7 +44,7 @@ export class VoteController {
 
     public createVote = async (req: Request, res: Response): Promise<void> => {
         const request = VoteCreationRequest.decode(req.body);
-        if (request instanceof Left) {
+        if (request.isLeft()) {
             res.status(400)
             .send(PathReporter.report(request).toString());
             return;
