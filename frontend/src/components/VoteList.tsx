@@ -1,4 +1,4 @@
-import { AxiosStatic } from "axios";
+import Axios from "axios";
 import { VoteSummaryResponse } from "common";
 import * as React from 'react';
 import { VoteRow } from './VoteRow';
@@ -10,17 +10,13 @@ export interface VoteSummary {
     hashid: string
 }
 
-export interface VoteListProps {
-    fetcher: AxiosStatic
-}
-
 export interface VoteListState {
     voteList: VoteSummary[],
     isPolling: boolean
 }
 
-export class VoteList extends React.Component<VoteListProps, VoteListState> {
-    public constructor (props: VoteListProps) {
+export class VoteList extends React.Component<{}, VoteListState> {
+    public constructor (props: {}) {
         super(props);
         this.state = {
             voteList: [],
@@ -44,14 +40,14 @@ export class VoteList extends React.Component<VoteListProps, VoteListState> {
     }
 
     public render = () => (
-        <>
-            {this.state.voteList.map((summary, index) => <VoteRow key={index} {...summary} />)}
-        </>
+        <div>
+            {this.state.voteList.map((summary, index) => <VoteRow key={index} {...summary}/>)}
+        </div>
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
         // TODO - figure out how to set version as a const, refer to that from components
-        const response = VoteSummaryResponse.decode(await this.props.fetcher.get("/api/v0.1/votes"));
+        const response = VoteSummaryResponse.decode((await Axios.get("/api/v0.1/votes")).data);
         if(response.isLeft()) {
             // TODO - handle error somehow
         } else {
