@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.1.2",
     "axios": "^0.18.0",
+    "common": "file:../common",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts-ts": "3.1.0",
-    "common": "file:../common"
+    "typeface-roboto": "0.0.54"
   },
   "scripts": {
     "start": "react-scripts-ts start",
