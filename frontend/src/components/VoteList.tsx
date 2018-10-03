@@ -1,3 +1,4 @@
+import { List, Typography } from '@material-ui/core';
 import Axios from "axios";
 import { VoteSummaryResponse } from "common";
 import * as React from 'react';
@@ -40,9 +41,16 @@ export class VoteList extends React.Component<{}, VoteListState> {
     }
 
     public render = () => (
-        <div>
-            {this.state.voteList.map((summary, index) => <VoteRow key={index} {...summary}/>)}
-        </div>
+        <>
+            <Typography align="center" variant="headline">
+                Votes in Progress
+            </Typography>
+            <List>
+                {this.state.voteList.map((summary, index) => (
+                    <VoteRow key={index} {...summary}/>
+                ))}
+            </List>
+        </>
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
