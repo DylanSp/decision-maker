@@ -38,9 +38,11 @@ export class VoteList extends React.Component<{}, VoteListState> {
         this.setState({
             isPolling: false
         });
+        // TODO - cancel any outstanding requests
     }
 
     public render = () => (
+        // TODO - something in case there are no votes?
         <>
             <Typography align="center" variant="headline">
                 Votes in Progress
@@ -54,7 +56,7 @@ export class VoteList extends React.Component<{}, VoteListState> {
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
-        // TODO - figure out how to set version as a const, refer to that from components
+        // TODO - figure out how to set API version as a const, refer to that from components
         const response = VoteSummaryResponse.decode((await Axios.get("/api/v0.1/votes")).data);
         if(response.isLeft()) {
             // TODO - handle error somehow
