@@ -1,0 +1,13 @@
+language: node_js
+node_js: lts/*
+
+jobs:
+  include:
+    # Frontend
+    - install: cd frontend && npm ci
+      script:
+        - cd frontend && npm test
+    # Backend
+    - install: cd backend && npm ci
+      script:
+        - cd backend && npm test
