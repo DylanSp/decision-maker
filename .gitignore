@@ -3,3 +3,4 @@
 # personal utility scripts
 start_dev_mysql.sh
 connect_to_mysql.sh
+build_and_run_container.sh
