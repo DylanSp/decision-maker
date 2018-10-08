@@ -1,13 +1,8 @@
-language: node_js
-node_js: lts/*
+sudo: required
+
+language: minimal
 
 jobs:
   include:
-    # Frontend
-    - install: cd frontend && npm ci
-      script:
-        - cd $TRAVIS_BUILD_DIR/frontend && npm test
-    # Backend
-    - install: cd backend && npm ci
-      script:
-        - cd $TRAVIS_BUILD_DIR/backend && npm test
+    - stage: App
+      script: sudo docker build -t decision-maker:latest .
