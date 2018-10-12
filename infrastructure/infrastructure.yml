@@ -1,6 +1,9 @@
+# VPC setup adapted from https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html.
+# Custom resource for ALB redirection from https://github.com/jheller/alb-rule
+
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: Infrastructure for Decision Maker. VPC setup adapted from https://docs.aws.amazon.com/codebuild/latest/userguide/cloudformation-vpc-template.html.
+Description: Infrastructure for Decision Maker.
 
 Parameters:
   PrimaryAvailabilityZone:
@@ -41,9 +44,20 @@ Parameters:
   LocalAccessIP:
     Description: IP of a local machine that can access the container host and database.
     Type: String
-    Default: "68.200.234.126"
+    Default: '68.200.234.126'
   DBRootPassword:
     Description: Root password for the database. Should be injected during deployment.
+    Type: String
+  ProductionTargetPort:
+    Description: Port to access the container for the production site.
+    Type: String
+    Default: '3000'
+  TestTargetPort:
+    Description: Port to access the container for the test site.
+    Type: String
+    Default: '4000'
+  LambdaBucket:
+    Description: S3 Bucket with the code from https://github.com/jheller/alb-rule for the ALB redirection custom resource
     Type: String
 
 Resources:
@@ -152,14 +166,71 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Name: !Sub ${EnvironmentName}-alb
-      Type: "application"
-      Scheme: "internet-facing"
+      Type: application
+      Scheme: internet-facing
       Subnets:
         - !Ref PrimaryPublicSubnet
         - !Ref SecondaryPublicSubnet
       SecurityGroups:
         - !Ref LoadBalancerSecurityGroup
-  # Rest of Load balancer stuff
+  HTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ProdTargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+  HTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ProdTargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - !Ref DomainCertARN
+  ProdTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${EnvironmentName}-prod-tg
+      Port: !Ref ProductionTargetPort
+      Protocol: HTTP
+      Targets:
+        - Id: !Ref ContainerHostInstance
+          Port: !Ref ProductionTargetPort
+      VpcId: !Ref VPC
+      HealthCheckPath: /
+      HealthCheckPort: !Ref ProductionTargetPort
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      UnhealthyThresholdCount: 2
+  TestTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub ${EnvironmentName}-test-tg
+      Port: !Ref TestTargetPort
+      Protocol: HTTP
+      Targets:
+        - Id: !Ref ContainerHostInstance
+          Port: !Ref TestTargetPort
+      VpcId: !Ref VPC
+      HealthCheckPath: /
+      HealthCheckPort: !Ref TestTargetPort
+      HealthCheckIntervalSeconds: 10
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      UnhealthyThresholdCount: 2
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -178,22 +249,82 @@ Resources:
       Tags:
         - Key: Name
           Value: ALB security group
+  # IAM role for the Lambda function used for implementing the custom redirection resource
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Policies:
+        - PolicyName: AddALBRules
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action:
+                  - elasticloadbalancing:CreateRule
+                  - elasticloadbalancing:DescribeRules
+                  - elasticloadbalancing:DeleteRule
+                Resource: '*'
+  # Lambda that backs the custom resource for managing ALB redirect rules
+  ALBRuleLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Sets ALB listener rules, including redirect rules that aren't yet available in CloudFormation.
+      FunctionName: AlbListenerRule
+      Handler: alb_rule.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python2.7
+      Timeout: '60'
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-id
+        SubnetIds:
+          - subnet-id
+      Code:
+        S3Bucket: !Ref LambdaBucket
+        S3Key: AlbListenerRule.zip
+  HTTPSRedirectRule:
+    Type: Custom::AlbListenerRule
+    Properties:
+      ServiceToken: !GetAtt ALBRuleLambda.Arn
+      Conditions:
+        - Field: host-header
+          Values:
+            - '*.*'
+      Actions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: 443
+            StatusCode: HTTP_301
+      ListenerArn: !Ref HTTPListener
   DatabaseInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: "20"
+      AllocatedStorage: '20'
       DBInstanceClass: db.t2.micro
       AutoMinorVersionUpgrade: true
       AvailabilityZone: !Ref PrimaryAvailabilityZone
-      BackupRetentionPeriod: "1"
+      BackupRetentionPeriod: '1'
       DBName: !Sub ${EnvironmentName}-db
       DBSubnetGroupName: !Ref DatabaseSubnetGroup
       Engine: mysql
-      EngineVersion: "5.7.23"
+      EngineVersion: '5.7.23'
       MasterUsername: dbadmin
       MasterUserPassword: !Ref DBRootPassword
       MultiAZ: false
-      Port: "3306"
+      Port: '3306'
       PubliclyAccessible: true
       StorageEncrypted: false
       StorageType: standard
@@ -207,9 +338,9 @@ Resources:
       SubnetIds:
         - !Ref PrimaryPublicSubnet
         - !Ref SecondaryPublicSubnet
-    Tags:
-      - Key: Name
-        Value: !Sub ${EnvironmentName} DB subnet group
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} DB subnet group
   DatabaseSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -236,21 +367,21 @@ Resources:
       - Name: !Sub test.${DomainName} # test site
         Type: A
         AliasTarget:
-          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneNameID
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
       - Name: !Sub www.${DomainName} # production site
         Type: A
         AliasTarget:
-          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneNameID
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
       - Name: ${DomainName} # apex record aliases to production site
         Type: A
         AliasTarget:        # should be the same details as www.${DomainName}
-          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneNameID
+          HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
       - Name: !Sub ssh.${DomainName} # convenience for SSHing into container host
         Type: A
-        TTL: "300"
+        TTL: '300'
         ResourceRecords:
           - !GetAtt ContainerHostInstance.PublicIp
 
