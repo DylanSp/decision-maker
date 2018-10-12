@@ -33,7 +33,7 @@ Parameters:
   DomainName:
     Description: The root domain name for hosting these resources
     Type: String
-    Default: decisionmakeronline.com. # Should include final period to work with Route 53 resources
+    Default: decisionmakeronline.com
   DomainCertARN:
     Description: ARN of a wildcard cert for the domain name.
     Type: String
@@ -308,6 +308,21 @@ Resources:
             StatusCode: HTTP_301
       ListenerArn: !Ref HTTPListener
       Priority: 10
+  ApexToWWWRedirectRule:
+    Type: Custom::AlbListenerRule
+    Properties:
+      ServiceToken: !GetAtt ALBRuleLambda.Arn
+      Conditions:
+        - Field: host-header
+          Values:
+            - !Ref DomainName
+      Actions:
+        - Type: redirect
+          RedirectConfig:
+            Host: !Sub www.${DomainName}
+            StatusCode: HTTP_301
+      ListenerArn: !Ref HTTPSListener
+      Priority: 10
   DatabaseInstance:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -362,24 +377,24 @@ Resources:
   DNSRecords:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneName: !Ref DomainName 
+      HostedZoneName: !Sub ${DomainName}. 
       RecordSets: 
-      - Name: !Sub test.${DomainName} # test site
+      - Name: !Sub test.${DomainName}. # test site
         Type: A
         AliasTarget:
           HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
-      - Name: !Sub www.${DomainName} # production site
+      - Name: !Sub www.${DomainName}. # production site
         Type: A
         AliasTarget:
           HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
-      - Name: !Sub ${DomainName} # apex record aliases to production site
+      - Name: !Sub ${DomainName}. # apex record aliases to production site
         Type: A
         AliasTarget:        # should be the same details as www.${DomainName}
           HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
-      - Name: !Sub ssh.${DomainName} # convenience for SSHing into container host
+      - Name: !Sub ssh.${DomainName}. # convenience for SSHing into container host
         Type: A
         TTL: '300'
         ResourceRecords:

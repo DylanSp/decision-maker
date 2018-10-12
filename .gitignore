@@ -6,6 +6,7 @@ connect_to_mysql.sh
 build_and_run_container.sh
 travis_lint.sh
 create_infrastructure.sh
+create_changeset.sh
 
 # infrastructure template parameters
 infrastructure/parameters.json
