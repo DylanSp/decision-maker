@@ -65,6 +65,8 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref VpcCIDR
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: !Ref EnvironmentName
@@ -192,7 +194,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-        - !Ref DomainCertARN
+        - CertificateArn: !Ref DomainCertARN
   ProdTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -286,11 +288,6 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       Runtime: python2.7
       Timeout: '60'
-      VpcConfig:
-        SecurityGroupIds:
-          - sg-id
-        SubnetIds:
-          - subnet-id
       Code:
         S3Bucket: !Ref LambdaBucket
         S3Key: AlbListenerRule.zip
@@ -309,15 +306,17 @@ Resources:
             Port: 443
             StatusCode: HTTP_301
       ListenerArn: !Ref HTTPListener
+      Priority: 10
   DatabaseInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      AllocatedStorage: '20'
+      AllocatedStorage: '20' # max for free tier
       DBInstanceClass: db.t2.micro
       AutoMinorVersionUpgrade: true
       AvailabilityZone: !Ref PrimaryAvailabilityZone
       BackupRetentionPeriod: '1'
-      DBName: !Sub ${EnvironmentName}-db
+      DBInstanceIdentifier: DecisionMakerDB
+      DBName: DecisionMakerDB
       DBSubnetGroupName: !Ref DatabaseSubnetGroup
       Engine: mysql
       EngineVersion: '5.7.23'
@@ -327,7 +326,7 @@ Resources:
       Port: '3306'
       PubliclyAccessible: true
       StorageEncrypted: false
-      StorageType: standard
+      StorageType: gp2
       VPCSecurityGroups:
         - !GetAtt DatabaseSecurityGroup.GroupId
     DependsOn: VPC # Necessary because it's getting a public IP address in the VPC
@@ -355,7 +354,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          CidrIp: !GetAtt ContainerHostInstance.PublicIp
+          CidrIp: !Sub ${ContainerHostInstance.PublicIp}/32
       Tags:
         - Key: Name
           Value: DB security group
@@ -374,7 +373,7 @@ Resources:
         AliasTarget:
           HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
           DNSName: !GetAtt LoadBalancer.DNSName
-      - Name: ${DomainName} # apex record aliases to production site
+      - Name: !Sub ${DomainName} # apex record aliases to production site
         Type: A
         AliasTarget:        # should be the same details as www.${DomainName}
           HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
