@@ -1,11 +1,11 @@
 import * as React from 'react';
 import './App.css';
-import { LobbyScreen } from './components/LobbyScreen';
+import { VotingScreen } from './components/VotingScreen';
 
 class App extends React.Component {
     public render() {
         return (
-            <LobbyScreen />
+            <VotingScreen voteHashid="abcde" />
         );
     }
 }
