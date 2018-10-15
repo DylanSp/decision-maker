@@ -44,4 +44,6 @@ export const VoteDetailsResponse = t.intersection([
     VoteCreationResponse
 ]);
 
+export interface VoteDetails extends t.TypeOf<typeof VoteDetailsResponse> {}
+
 export const BallotCreationRequest = t.array(t.string);
