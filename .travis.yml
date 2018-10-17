@@ -2,6 +2,10 @@ sudo: required
 
 language: minimal
 
+branches:
+  only:
+    - master
+
 jobs:
   include:
     - stage: App
