@@ -1,3 +1,4 @@
+import { List } from '@material-ui/core';
 import { PureComponent } from 'react';
 import * as React from 'react';
 import { SortableContainer } from 'react-sortable-hoc';
@@ -10,11 +11,11 @@ interface ChoiceDisplayListProps {
 
 const ChoiceDisplayList = (props: ChoiceDisplayListProps) => {
     return (
-        <ul>
+        <List>
             {props.items.map((choice, index) => (
                 <SortableChoiceDisplay key={`item-${index}`} index={index} choiceName={choice} />
             ))}
-        </ul>
+        </List>
     );
 };
 
@@ -45,7 +46,7 @@ export class ChoiceRanker extends PureComponent<ChoiceRankerProps, ChoiceRankerS
         <SortableChoiceDisplayList
             items={this.state.rankedChoices}
             onSortEnd={this.onSortEnd}
-            useDragHandle={true}
+            useDragHandle={false}
         />
     )
 
