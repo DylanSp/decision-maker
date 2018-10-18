@@ -28,7 +28,7 @@ if [[ "$infra_changes_exist" ]]; then
         -H "Authorization: token $GITHUB_TOKEN" \
         -H "Content-Type: application/json" \
         -d "{\"body\": \"$comment_text\"}"
-    elif [[ $"TRAVIS_EVENT_TYPE" == "push" ]]; then
+    elif [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; then
         aws cloudformation execute-change-set --stack-name "$stack_name" \
         --change-set-name "decision-maker-changeset-$TRAVIS_COMMIT"
     fi
