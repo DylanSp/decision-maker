@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+set -ex
 
 sudo pip install awscli --upgrade
 
