@@ -4,7 +4,14 @@ import { ChoiceRepository } from "./repository/ChoiceRepository";
 import { VoteRepository } from "./repository/VoteRepository";
 import { DecisionMakerServer } from "./server";
 
-createConnection("prod").then(async (connection) => {
+let connectionName: string;
+if (process.env.DOCKER && process.env.DOCKER === "true") {
+    connectionName = "docker";
+} else {
+    connectionName = "local";
+}
+
+createConnection(connectionName).then(async (connection) => {
     const voteRepo = connection.getCustomRepository(VoteRepository);
     const choiceRepo = connection.getCustomRepository(ChoiceRepository);
     const app = new DecisionMakerServer(voteRepo, choiceRepo, "salt").app;

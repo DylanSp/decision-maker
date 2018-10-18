@@ -42,7 +42,9 @@
    "scripts": {
       "start": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts",
       "pretest": "tsc",
-      "test": "jest --watch"
+      "test": "jest --watch",
+      "test:ci": "jest",
+      "build": "tsc"
    },
    "jest": {
       "preset": "ts-jest",

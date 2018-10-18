@@ -1,0 +1,7 @@
+**/node_modules
+common/dist
+frontend/build
+backend/dist
+docs
+.git
+*.sh
