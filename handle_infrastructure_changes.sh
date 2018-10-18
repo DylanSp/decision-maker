@@ -2,6 +2,8 @@
 
 set -x
 
+sudo pip install awscli --upgrade
+
 stack_name="decision-maker-infra"
 infra_changes_exist=$(grep infrastructure <(git diff --name-only "$TRAVIS_COMMIT_RANGE"))
 
