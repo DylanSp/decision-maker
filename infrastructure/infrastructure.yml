@@ -399,4 +399,7 @@ Resources:
         TTL: '300'
         ResourceRecords:
           - !GetAtt ContainerHostInstance.PublicIp
-
+  TestRepo:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: decision-maker-repo
