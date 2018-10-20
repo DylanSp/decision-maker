@@ -43,7 +43,7 @@ export class VoteList extends React.Component<{}, VoteListState> {
 
     public render = () => (
         // TODO - something in case there are no votes?
-        <>
+        <div>
             <Typography align="center" variant="headline">
                 Votes in Progress
             </Typography>
@@ -52,7 +52,7 @@ export class VoteList extends React.Component<{}, VoteListState> {
                     <VoteRow key={index} {...summary}/>
                 ))}
             </List>
-        </>
+        </div>
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
