@@ -13,3 +13,7 @@ All changes to this project should go through pull requests.
 
 ### Infrastructure changes
 When making changes in the `infrastructure` folder , creating a pull request causes Travis CI to create a [CloudFormation changeset](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets.html), which should be manually examined in the AWS console to verify that the changes are correct. Merging the PR to `master` will execute the change set.
+
+# License
+
+MIT
