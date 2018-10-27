@@ -1,0 +1,11 @@
+Client                                                                              Server
+
+Enter password in lobby, cached as cookie
+    (or in local storage?)
+
+Load /votes/:voteid
+- check if voter key for this vote exists in localstorage
+- if not, POST to /voters to create a voter, get ID, put in localstorage    --->    server creates record in Voter table, returns ID
+
+Submit ballot (list of ranked choices, w/ voter ID)                         --->    insert records into Ballot
+                                                                                    (how to track # of votes submitted, determine when vote is complete?)

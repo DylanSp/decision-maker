@@ -1,0 +1,10 @@
+connection
+    |
+    v
+repositories
+    |
+    v
+server <-- hashidSalt (from environment variable)
+    |
+    v
+controllers
