@@ -5,9 +5,9 @@ set -ex
 sudo pip install awscli --upgrade
 
 stack_name="decision-maker-infra"
-infra_changes_exist=$(grep infrastructure <(git diff --name-only "$TRAVIS_COMMIT_RANGE"))
+infra_changes_exist=$(grep -c infrastructure <(git diff --name-only "$TRAVIS_COMMIT_RANGE"))
 
-if [[ "$infra_changes_exist" ]]; then
+if [[ "$infra_changes_exist" -gt 0 ]]; then
     if [[ "$TRAVIS_EVENT_TYPE" == "pull_request" ]]; then
         # create changeset
         aws cloudformation create-change-set --stack-name "$stack_name" \
