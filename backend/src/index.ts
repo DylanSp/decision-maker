@@ -17,7 +17,7 @@ createConnection(connectionName).then(async (connection) => {
     const app = new DecisionMakerServer(voteRepo, choiceRepo, "salt").app;
 
     // start express server
-    const port = app.get("port");
+    const port = process.env.PORT || 3001;
     app.listen(port);
     console.log(`Express server has started on port ${port}.`);
 

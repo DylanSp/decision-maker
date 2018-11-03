@@ -19,7 +19,6 @@ export class DecisionMakerServer {
         this.app.use(bodyParser.json());
         this.app.use(morgan("tiny"));
         this.app.use(compression());
-        this.app.set("port", process.env.PORT || 3001);
 
         // set up routes
         const router = express.Router();
