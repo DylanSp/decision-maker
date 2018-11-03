@@ -1,0 +1,2 @@
+VotingScreen
+- choices not centered because they look fine left-aligned on mobile

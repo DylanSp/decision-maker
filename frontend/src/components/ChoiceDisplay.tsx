@@ -1,4 +1,4 @@
-import { ListItem, ListItemText } from "@material-ui/core";
+import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { DragHandle } from "@material-ui/icons";
 import * as React from 'react';
 import { SortableHandle } from 'react-sortable-hoc';
@@ -18,7 +18,9 @@ const SortableDragHandle = SortableHandle(() => (
 const ChoiceDisplay = (props: ChoiceDisplayProps) => {
     return (
         <ListItem>
-            <SortableDragHandle />
+            <ListItemIcon>
+                <SortableDragHandle/>
+            </ListItemIcon>
             <ListItemText>
                 {props.choiceName}
             </ListItemText>

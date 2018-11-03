@@ -1,3 +1,4 @@
+import { Typography } from "@material-ui/core";
 import { VoteDetails } from 'common';
 import { PureComponent } from "react";
 import * as React from 'react';
@@ -47,6 +48,15 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
         if (this.state.voteDetails) {
             return (
                 <>
+                    <Typography
+                        align="center"
+                        variant="h4"
+                        style={{
+                            marginTop: "0.5em"
+                        }}
+                    >
+                        Voting for: {this.state.voteDetails.name}
+                    </Typography>
                     <ChoiceRanker choices={this.state.voteDetails.choices} />
                 </>
                 // submit button
