@@ -1,4 +1,4 @@
-import { ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { Card, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { DragHandle } from "@material-ui/icons";
 import * as React from 'react';
 import { SortableHandle } from 'react-sortable-hoc';
@@ -17,14 +17,19 @@ const SortableDragHandle = SortableHandle(() => (
 // we get type errors in SortableChoiceDisplay
 const ChoiceDisplay = (props: ChoiceDisplayProps) => {
     return (
-        <ListItem>
-            <ListItemIcon>
-                <SortableDragHandle/>
-            </ListItemIcon>
-            <ListItemText>
-                {props.choiceName}
-            </ListItemText>
-        </ListItem>
+        <Card style={{
+            marginTop: "0.5em",
+            marginBottom: "0.5em"
+        }}>
+            <ListItem>
+                <ListItemIcon>
+                    <SortableDragHandle/>
+                </ListItemIcon>
+                <ListItemText>
+                    {props.choiceName}
+                </ListItemText>
+            </ListItem>
+        </Card>
     );
 }
 
