@@ -44,7 +44,7 @@ export class VoteList extends React.Component<{}, VoteListState> {
     public render = () => (
         // TODO - something in case there are no votes?
         <div>
-            <Typography align="center" variant="headline">
+            <Typography align="center" variant="h5">
                 Votes in Progress
             </Typography>
             <List>
