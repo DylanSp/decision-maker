@@ -48,6 +48,7 @@ Parameters:
   DBRootPassword:
     Description: Root password for the database. Should be injected during deployment.
     Type: String
+    NoEcho: true
   ProductionTargetPort:
     Description: Port to access the container for the production site.
     Type: String
@@ -399,7 +400,7 @@ Resources:
         TTL: '300'
         ResourceRecords:
           - !GetAtt ContainerHostInstance.PublicIp
-  TestRepo:
+  ContainerImageRepo:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: decision-maker-repo
