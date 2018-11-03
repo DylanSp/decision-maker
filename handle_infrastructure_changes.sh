@@ -5,9 +5,9 @@ set -ex
 sudo pip install awscli --upgrade
 
 stack_name="decision-maker-infra"
-infra_changes_exist=$(grep infrastructure <(git diff --name-only "$TRAVIS_COMMIT_RANGE"))
+infra_changes_exist=$(grep -c infrastructure <(git diff --name-only "$TRAVIS_COMMIT_RANGE"))
 
-if [[ "$infra_changes_exist" ]]; then
+if [[ "$infra_changes_exist" -gt 0 ]]; then
     if [[ "$TRAVIS_EVENT_TYPE" == "pull_request" ]]; then
         # create changeset
         aws cloudformation create-change-set --stack-name "$stack_name" \
@@ -29,8 +29,13 @@ if [[ "$infra_changes_exist" ]]; then
         -H "Content-Type: application/json" \
         -d "{\"body\": \"$comment_text\"}"
     elif [[ "$TRAVIS_EVENT_TYPE" == "push" ]]; then
-        # reference git HEAD^2, which will be the merge commit's parent from the branch being merged in
-        aws cloudformation execute-change-set --stack-name "$stack_name" \
-        --change-set-name "decision-maker-changeset-$(git rev-parse HEAD^2)"
+        num_parents=$(git cat-file -p "$(git rev-parse HEAD)" | grep -c parent)
+
+        # by definition, if there's more than 1 parent, commit is a merge commit
+        if [[ "$num_parents" -gt 1 ]]; then
+            merge_commit=$(git rev-parse HEAD^2)    # HEAD^2 will be the merge commit's parent from the branch being merged in
+            aws cloudformation execute-change-set --stack-name "$stack_name" \
+            --change-set-name "decision-maker-changeset-$merge_commit"
+        fi
     fi
 fi

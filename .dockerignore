@@ -5,3 +5,4 @@ backend/dist
 docs
 .git
 *.sh
+infrastructure
