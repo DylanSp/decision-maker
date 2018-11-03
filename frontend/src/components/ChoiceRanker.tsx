@@ -1,4 +1,4 @@
-import { List } from '@material-ui/core';
+import { List, Typography } from '@material-ui/core';
 import { PureComponent } from 'react';
 import * as React from 'react';
 import { SortableContainer } from 'react-sortable-hoc';
@@ -12,9 +12,15 @@ interface ChoiceDisplayListProps {
 const ChoiceDisplayList = (props: ChoiceDisplayListProps) => {
     return (
         <List>
+            <Typography align="center" variant="h6">
+                Most preferred option!
+            </Typography>
             {props.items.map((choice, index) => (
                 <SortableChoiceDisplay key={`item-${index}`} index={index} choiceName={choice} />
             ))}
+            <Typography align="center" variant="h6">
+                Least preferred option!
+            </Typography>
         </List>
     );
 };

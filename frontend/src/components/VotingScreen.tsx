@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import { Divider, Typography } from "@material-ui/core";
 import { VoteDetails } from 'common';
 import { PureComponent } from "react";
 import * as React from 'react';
@@ -57,6 +57,12 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                     >
                         Voting for: {this.state.voteDetails.name}
                     </Typography>
+                    <Divider style={{
+                        marginTop: "2em",
+                        marginBottom: "1em",
+                        marginLeft: 72,
+                        marginRight: 72,
+                    }}  />
                     <ChoiceRanker choices={this.state.voteDetails.choices} />
                 </>
                 // submit button
