@@ -44,7 +44,7 @@ Parameters:
   LocalAccessIP:
     Description: IP of a local machine that can access the container host and database.
     Type: String
-    Default: '68.200.234.126'
+    Default: '72.186.120.238'
   DBRootPassword:
     Description: Root password for the database. Should be injected during deployment.
     Type: String
