@@ -44,10 +44,11 @@ Parameters:
   LocalAccessIP:
     Description: IP of a local machine that can access the container host and database.
     Type: String
-    Default: '68.200.234.126'
+    Default: '72.186.120.238'
   DBRootPassword:
     Description: Root password for the database. Should be injected during deployment.
     Type: String
+    NoEcho: true
   ProductionTargetPort:
     Description: Port to access the container for the production site.
     Type: String
@@ -144,6 +145,7 @@ Resources:
         sudo apt-get install -y libltdl7 # Necessary dependency
         sudo dpkg -i /tmp/docker.deb
         sudo docker run hello-world
+      IamInstanceProfile: !Ref ContainerHostProfile
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName} Container Host
@@ -399,7 +401,28 @@ Resources:
         TTL: '300'
         ResourceRecords:
           - !GetAtt ContainerHostInstance.PublicIp
-  TestRepo:
+  ContainerImageRepo:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: decision-maker-repo
+  ContainerHostRole:    # role for the container host, allowing it to pull Docker images from ECR
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole 
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+  ContainerHostProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref ContainerHostRole
