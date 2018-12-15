@@ -7,4 +7,4 @@ branches:
 jobs:
   include:
     - stage: App
-      script: sudo docker build -t decision-maker:latest .
+      script: ./handle_code_changes.sh
