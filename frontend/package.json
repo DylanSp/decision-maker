@@ -3,11 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.2.2",
+    "@material-ui/icons": "^3.0.1",
     "axios": "^0.18.0",
+    "common": "file:../common",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-scripts-ts": "3.1.0",
-    "common": "file:../common"
+    "react-sortable-hoc": "^0.8.3",
+    "typeface-roboto": "0.0.54"
   },
   "scripts": {
     "start": "react-scripts-ts start",
@@ -23,6 +27,7 @@
     "@types/node": "^10.11.2",
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.8",
+    "@types/react-sortable-hoc": "^0.6.4",
     "@types/sinon": "^5.0.2",
     "enzyme": "^3.6.0",
     "enzyme-adapter-react-16": "^1.5.0",

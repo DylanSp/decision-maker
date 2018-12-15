@@ -96,10 +96,6 @@ describe("Vote controller", () => {
             .expect((res) => {
                 const response = VoteSummaryResponse.decode(res.body);
                 console.log(response.constructor.name);
-                // console.log(response instanceof Right);
-                // console.log(response instanceof Left);
-                // console.log(`isLeft: ${response.isLeft()}`);
-                // console.log(`isRight: ${response.isRight()}`);
     
                 if(response.isRight()) {
                     const votes = response.value;
