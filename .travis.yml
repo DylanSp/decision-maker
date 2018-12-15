@@ -10,5 +10,3 @@ jobs:
   include:
     - stage: App
       script: sudo docker build -t decision-maker:latest .
-    - stage: Infrastructure
-      script: ./handle_infrastructure_changes.sh
