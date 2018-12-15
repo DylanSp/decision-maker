@@ -18,4 +18,5 @@ RUN cd backend && npm ci --production
 
 # Need to be in backend directory for relative paths in ormconfig.json to entities to work
 WORKDIR /app/backend
+RUN ln -s /app/frontend frontend-files
 CMD ["node", "dist/index.js"]
