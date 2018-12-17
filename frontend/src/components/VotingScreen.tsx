@@ -77,6 +77,12 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                         choices={this.state.rankedChoices}
                         rerankChoices={this.rearrangeRankedChoices}
                     />
+                    <Divider style={{
+                        marginTop: "1em",
+                        marginBottom: "2em",
+                        marginLeft: 72,
+                        marginRight: 72,
+                    }}  />
                     <div style={{textAlign: "center"}}>
                         <Button variant="contained" size="large" color="primary" onClick={this.submitVote}>
                             Submit Vote
