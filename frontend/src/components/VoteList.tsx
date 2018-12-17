@@ -57,7 +57,6 @@ export class VoteList extends React.Component<{}, VoteListState> {
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
-        // TODO - figure out how to set API version as a const, refer to that from components
         const votesUrl = `${backendUrl}/votes`;
         const response = VoteSummaryResponse.decode((await Axios.get(votesUrl)).data);
         if(response.isLeft()) {
