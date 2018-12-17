@@ -1,14 +1,16 @@
 import { List, Typography } from '@material-ui/core';
-import { PureComponent } from 'react';
+import { SFC } from 'react';
 import * as React from 'react';
 import { SortableContainer } from 'react-sortable-hoc';
-import { arrayMove } from 'react-sortable-hoc';
+
 import { SortableChoiceDisplay } from './ChoiceDisplay';
 
 interface ChoiceDisplayListProps {
     items: string[];
 }
 
+// if we explicitly type this as an SFC, 
+// we get type errors in SortableChoiceDisplayList
 const ChoiceDisplayList = (props: ChoiceDisplayListProps) => {
     return (
         <List>
@@ -29,36 +31,15 @@ const SortableChoiceDisplayList = SortableContainer(ChoiceDisplayList);
 
 interface ChoiceRankerProps {
     choices: string[];
+    rerankChoices: (oldIndex: number, newIndex: number) => void;
 }
 
-interface ChoiceRankerState {
-    rankedChoices: string[];
-}
-
-interface IndexChange {
-    oldIndex: number,
-    newIndex: number
-}
-
-export class ChoiceRanker extends PureComponent<ChoiceRankerProps, ChoiceRankerState> {
-    public constructor (props: ChoiceRankerProps) {
-        super(props);
-        this.state = {
-            rankedChoices: props.choices
-        };
-    }
-
-    public render = () => (
-        <SortableChoiceDisplayList
-            items={this.state.rankedChoices}
-            onSortEnd={this.onSortEnd}
-            useDragHandle={false}
-        />
-    )
-
-    private onSortEnd = ({oldIndex, newIndex}: IndexChange) => {
-        this.setState((state) => ({
-            rankedChoices: arrayMove(state.rankedChoices, oldIndex, newIndex)
-        }));
-    };
-}
+export const ChoiceRanker: SFC<ChoiceRankerProps> = (props) => (
+    <SortableChoiceDisplayList
+        items={props.choices}
+        useDragHandle={false}
+        onSortEnd={({oldIndex, newIndex}) => (
+            props.rerankChoices(oldIndex, newIndex)
+        )}
+    />
+);
