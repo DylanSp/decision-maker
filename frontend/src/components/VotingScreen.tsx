@@ -62,10 +62,18 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                         align="center"
                         variant="h4"
                         style={{
-                            marginTop: "0.5em"
+                            marginTop: "0.5em",
+                            marginBottom: "0.5em"
                         }}
                     >
                         Voting for: {this.state.voteDetails.name}
+                    </Typography>
+                    <Typography
+                        align="center"
+                        variant="subtitle1"
+                        color="textSecondary"
+                    >
+                        Drag items for your preferred ranking
                     </Typography>
                     <Divider style={{
                         marginTop: "2em",
@@ -89,7 +97,6 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                         </Button>
                     </div>
                 </>
-                // submit button
             );
         } else {
             return ( // TODO - replace with proper placeholder, or perhaps just leave empty

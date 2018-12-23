@@ -1,4 +1,4 @@
-import { List, Typography } from '@material-ui/core';
+import { Table, TableBody, TableCell, TableHead, TableRow/*, Typography*/ } from '@material-ui/core';
 import { SFC } from 'react';
 import * as React from 'react';
 import { SortableContainer } from 'react-sortable-hoc';
@@ -13,17 +13,20 @@ interface ChoiceDisplayListProps {
 // we get type errors in SortableChoiceDisplayList
 const ChoiceDisplayList = (props: ChoiceDisplayListProps) => {
     return (
-        <List>
-            <Typography align="center" variant="h6">
-                Most preferred option!
-            </Typography>
-            {props.items.map((choice, index) => (
-                <SortableChoiceDisplay key={`item-${index}`} index={index} choiceName={choice} />
-            ))}
-            <Typography align="center" variant="h6">
-                Least preferred option!
-            </Typography>
-        </List>
+        <Table>
+            <TableHead>
+                <TableRow>
+                    <TableCell />
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Choice</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {props.items.map((choice, index) => (
+                    <SortableChoiceDisplay key={`item-${index}`} index={index} rank={index} choiceName={choice} />
+                ))}
+            </TableBody>
+        </Table>
     );
 };
 
