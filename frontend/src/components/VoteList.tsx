@@ -2,7 +2,7 @@ import { List, Typography } from '@material-ui/core';
 import Axios from "axios";
 import { VoteSummaryResponse } from "common";
 import * as React from 'react';
-import { backendUrl } from 'src/BackendUrl';
+import { backendUrl } from '../BackendUrl';
 import { VoteRow } from './VoteRow';
 
 const pollInterval = 2 * 1000;

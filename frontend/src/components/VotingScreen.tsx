@@ -4,7 +4,7 @@ import { VoteDetails } from 'common';
 import { PureComponent } from "react";
 import * as React from 'react';
 import { arrayMove } from 'react-sortable-hoc';
-import { backendUrl } from 'src/BackendUrl';
+import { backendUrl } from '../BackendUrl';
 import { ChoiceRanker } from './ChoiceRanker';
 
 interface VotingScreenProps {
