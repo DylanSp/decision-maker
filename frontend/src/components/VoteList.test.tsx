@@ -6,7 +6,7 @@ import { VoteList } from './VoteList';
 
 describe("Vote List", () => {
     describe("data fetching", () => {
-        it.skip("displays vote summaries from the backend", async () => {
+        it("displays vote summaries from the backend", async (done) => {
             const response = [
                 {
                     name: "test0",
@@ -22,9 +22,12 @@ describe("Vote List", () => {
                 data: response
             });
 
-            const voteList = await mount(<VoteList />);
-            expect(voteList.text()).toMatch(/test0/);
-            expect(voteList.text()).toMatch(/test1/);
+            const voteList = mount(<VoteList />);
+            setImmediate(() => {
+                expect(voteList.text()).toMatch(/test0/);
+                expect(voteList.text()).toMatch(/test1/);
+                done();
+            });
         });
     });
 });
