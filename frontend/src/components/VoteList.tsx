@@ -2,6 +2,7 @@ import { List, Typography } from '@material-ui/core';
 import Axios from "axios";
 import { VoteSummaryResponse } from "common";
 import * as React from 'react';
+import { backendUrl } from '../BackendUrl';
 import { VoteRow } from './VoteRow';
 
 const pollInterval = 2 * 1000;
@@ -56,8 +57,8 @@ export class VoteList extends React.Component<{}, VoteListState> {
     );
 
     private fetchVoteSummaries = async (): Promise<void> => {
-        // TODO - figure out how to set API version as a const, refer to that from components
-        const response = VoteSummaryResponse.decode((await Axios.get("/api/v0.1/votes")).data);
+        const votesUrl = `${backendUrl}/votes`;
+        const response = VoteSummaryResponse.decode((await Axios.get(votesUrl)).data);
         if(response.isLeft()) {
             // TODO - handle error somehow
         } else {

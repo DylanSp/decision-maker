@@ -1,7 +1,10 @@
-import { Divider, Typography } from "@material-ui/core";
+import { Button, Divider, Typography } from "@material-ui/core";
+import Axios from "axios";
 import { VoteDetails } from 'common';
 import { PureComponent } from "react";
 import * as React from 'react';
+import { arrayMove } from 'react-sortable-hoc';
+import { backendUrl } from '../BackendUrl';
 import { ChoiceRanker } from './ChoiceRanker';
 
 interface VotingScreenProps {
@@ -9,14 +12,16 @@ interface VotingScreenProps {
 }
 
 interface VotingScreenState {
-    voteDetails?: VoteDetails
+    voteDetails?: VoteDetails;
+    rankedChoices: string[]
 }
 
 export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenState> {
     public constructor(props: VotingScreenProps) {
         super(props);
         this.state = {
-            voteDetails: undefined
+            voteDetails: undefined,
+            rankedChoices: []
         }
     }
 
@@ -38,7 +43,12 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                     "Monopoly"
                 ],
                 password: "testpass"
-            }
+            },
+            rankedChoices: [
+                "Viticulture",
+                "Machi Koro",
+                "Monopoly"
+            ]
         });
     }
 
@@ -52,10 +62,18 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                         align="center"
                         variant="h4"
                         style={{
-                            marginTop: "0.5em"
+                            marginTop: "0.5em",
+                            marginBottom: "0.5em"
                         }}
                     >
                         Voting for: {this.state.voteDetails.name}
+                    </Typography>
+                    <Typography
+                        align="center"
+                        variant="subtitle1"
+                        color="textSecondary"
+                    >
+                        Drag items for your preferred ranking
                     </Typography>
                     <Divider style={{
                         marginTop: "2em",
@@ -63,9 +81,22 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                         marginLeft: 72,
                         marginRight: 72,
                     }}  />
-                    <ChoiceRanker choices={this.state.voteDetails.choices} />
+                    <ChoiceRanker
+                        choices={this.state.rankedChoices}
+                        rerankChoices={this.rearrangeRankedChoices}
+                    />
+                    <Divider style={{
+                        marginTop: "1em",
+                        marginBottom: "2em",
+                        marginLeft: 72,
+                        marginRight: 72,
+                    }}  />
+                    <div style={{textAlign: "center"}}>
+                        <Button variant="contained" size="large" color="primary" onClick={this.submitVote}>
+                            Submit Vote
+                        </Button>
+                    </div>
                 </>
-                // submit button
             );
         } else {
             return ( // TODO - replace with proper placeholder, or perhaps just leave empty
@@ -74,5 +105,17 @@ export class VotingScreen extends PureComponent<VotingScreenProps, VotingScreenS
                 </>
             );
         }
+    }
+
+    private submitVote = async () => {
+        const submitUrl = `${backendUrl}/votes/${this.props.voteHashid}/ballots`;
+        await Axios.post(submitUrl, this.state.rankedChoices);
+        // check response; if success (should be 204), redirect to WaitingScreen
+    }
+
+    private rearrangeRankedChoices = (oldIndex: number, newIndex: number) => {
+        this.setState((state) => ({
+            rankedChoices: arrayMove(state.rankedChoices, oldIndex, newIndex)
+        }));
     }
 }
